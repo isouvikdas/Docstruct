@@ -1,0 +1,18 @@
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+
+  worker:
+    build: .
+    command: celery -A docstruct worker -l info
+    depends_on:
+      - redis

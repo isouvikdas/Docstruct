@@ -1,12 +1,13 @@
-from rest_framework.views import APIView
 from rest_framework import response
 from rest_framework import status
-from .serializer import UserSerializer
-from .models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .models import User
+from .serializer import UserSerializer
+
 
 # Create your views here.
 
@@ -19,7 +20,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token["username"] = user.username
         # ...
-
         return token
 
 
@@ -49,7 +49,7 @@ def create_user(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated, IsAdminUser])   
+@permission_classes([IsAuthenticated, IsAdminUser])
 def create_admin(request):
     serializer = UserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -111,4 +111,4 @@ def delete_user(request, id):
             {"error": "User not found"},
             status = status.HTTP_200_OK
         )
-        
+
