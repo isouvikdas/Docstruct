@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="17ba7d78-80c2-4140-8cfb-312a2e01d0f9" name="Changes" comment="" />
+    <list default="true" id="17ba7d78-80c2-4140-8cfb-312a2e01d0f9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docstruct/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/docstruct/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document_processing/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/document_processing/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document_processing/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/document_processing/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,7 +55,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/django/docstruct&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -121,6 +127,8 @@
       <workItem from="1771571159420" duration="7556000" />
       <workItem from="1771651876051" duration="16019000" />
       <workItem from="1771831844015" duration="10417000" />
+      <workItem from="1771865686684" duration="4033000" />
+      <workItem from="1772029723943" duration="5347000" />
     </task>
     <servers />
   </component>

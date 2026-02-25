@@ -6,6 +6,7 @@ import logging
 from . import storage, tasks
 from .models import Document
 from .serializers import DocumentSerializer
+from google import genai
 
 logger = logging.getLogger(__name__)
 
@@ -57,27 +58,20 @@ def check_status_view(request, id):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-# @api_view(["GET"])
-# def download_file_view(request, id: str):
-#     try:
-#         print("entered")
-#         document = Document.objects.get(id = id)
-#         file = storage.download_file(key=document.file_key)
-#         if file is None:
-#             print("No file provided")
-#         else:
-#             print(file)
-#             text = convert_pdf(file)
-#         return response.Response({"message": "Success", "data": text}, status=status.HTTP_200_OK)
-#     except Exception as e:
-#         logger.exception(e)
-#         return response.Response(
-#             {"error": "Internal Server Error"},
-#             status=status.HTTP_500_INTERNAL_SERVER_ERROR
-#         )
 
+@api_view(["GET"])
+def gemini_api_view(request):
+    try:
+        client = genai.Client()
 
-
-
-
-
+        result = client.models.generate_content(
+            model="gemini-3-flash-preview", contents="Explain how AI works in a few words"
+        )
+        print(result.text)
+        return response.Response({"message": "Success"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.exception(e)
+        return response.Response(
+            {"error": "Internal Server Error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
