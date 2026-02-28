@@ -1,14 +1,16 @@
 from rest_framework import response, status
 from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser
-from .ocr import read_image, convert_pdf
+from rest_framework.permissions import IsAuthenticated
 import logging
+
+
 from . import storage, tasks
 from .models import Document
 from .serializers import DocumentSerializer
-from google import genai
 
 logger = logging.getLogger(__name__)
+
 
 # Create your views here.
 
@@ -31,9 +33,9 @@ def upload_file_view(request):
         saved_document = Document.objects.create(
             file_key=saved_file.file_key,
             original_filename=saved_file.original_filename,
-            file_url = saved_file.file_url,
+            file_url=saved_file.file_url,
             file_size=saved_file.file_size,
-            status = 'PENDING'
+            status='PENDING'
         )
         serializer = DocumentSerializer(saved_document)
         tasks.process_file.delay(saved_document.id)
@@ -45,30 +47,14 @@ def upload_file_view(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def check_status_view(request, id):
     try:
         document = Document.objects.get(id=id)
         serializer = DocumentSerializer(document)
         return response.Response({"message": "Success", "data": serializer.data}, status=status.HTTP_200_OK)
-    except Exception as e:
-        logger.exception(e)
-        return response.Response(
-            {"error": "Internal Server Error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-
-
-@api_view(["GET"])
-def gemini_api_view(request):
-    try:
-        client = genai.Client()
-
-        result = client.models.generate_content(
-            model="gemini-3-flash-preview", contents="Explain how AI works in a few words"
-        )
-        print(result.text)
-        return response.Response({"message": "Success"}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.exception(e)
         return response.Response(

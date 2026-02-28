@@ -7,6 +7,7 @@ from . import storage
 from io import BytesIO
 from PIL import Image
 import logging
+from . import llm
 logger = logging.getLogger(__name__)
 
 @shared_task
@@ -22,7 +23,7 @@ def process_file(document_id):
         if ext == ".pdf":
             print("entered pdf")
             path = storage.download_pdf(document.file_key)
-            print(path)
+            # print(path)
             text = convert_pdf(path)
             os.remove(path)
         else :
@@ -31,11 +32,24 @@ def process_file(document_id):
             text = read_image(image)
         if text is not None:
             document.extracted_text = text
-            document.status = "COMPLETED"
         else:
             document.status = "FAILED"
-            document.error_text = "Error reading file"
+            document.error_text = "OCR extraction failed"
+            document.save()
+            return
         document.save()
+        print("reached here")
+        data = llm.get_data(text)
+        print(data)
+        if data is not None:
+            document.status = "COMPLETED"
+            document.extracted_data = data
+            document.save()
+        else:
+            document.status = "FAILED"
+            document.error_text = "LLM extraction failed"
+            document.save()
+            return
     except Exception as e:
         Document.objects.filter(id=document_id).update(
             status="FAILED",

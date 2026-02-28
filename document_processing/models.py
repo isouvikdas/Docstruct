@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 
+
 # Create your models here.
 
 class Document(models.Model):
@@ -18,10 +19,9 @@ class Document(models.Model):
     file_url = models.URLField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     created_at = models.DateTimeField(auto_now_add=True)
-    extracted_text = models.TextField(null = True, blank=True)
-    error_text = models.TextField(null = True, blank=True)
-    
+    extracted_text = models.TextField(null=True, blank=True)
+    extracted_data = models.JSONField(null=True, blank=True)
+    error_text = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return str(self.id)
-    
-        
