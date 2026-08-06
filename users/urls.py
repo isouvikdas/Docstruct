@@ -9,10 +9,9 @@ urlpatterns=[
     path('register/user', views.create_user),
     path('register/admin', views.create_admin),
     path('get', views.get_users),
-    path('<int:id>', views.get_user),
     path('update', views.update_user),
     path('delete/<int:id>', views.delete_user),
-    path('token', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('healthcheck', views.health_check)
 ]

@@ -84,6 +84,8 @@ def ask_question_view(request):
 def check_status_view(request, id):
     try:
         document = Document.objects.get(id=id)
+        if document.user.id != request.user.id:
+            return response.Response({"message": "You are not authorized to view this document"}, status=status.HTTP_403_FORBIDDEN)
         serializer = DocumentSerializer(document)
         return response.Response({"message": "Success", "data": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:

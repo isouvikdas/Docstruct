@@ -75,7 +75,7 @@ def create_admin(request):
     return response.Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["PUT"])
+@api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def update_user(request):
     user = request.user
@@ -93,20 +93,6 @@ def get_users(request):
     data = User.objects.all()
     persons = UserSerializer(data, many=True)
     return response.Response(persons.data, status=status.HTTP_200_OK)
-
-
-@api_view(["GET"])
-def get_user(request, id):
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return response.Response(
-            {"error": "User not found"},
-            status=status.HTTP_404_NOT_FOUND
-        )
-
-    serializer = UserSerializer(user)
-    return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["DELETE"])
