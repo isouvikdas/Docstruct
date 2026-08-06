@@ -1,13 +1,14 @@
 from io import BytesIO
 
 import pytesseract
-from PIL import Image, ImageFilter, ImageEnhance
-from pdf2image import convert_from_bytes, convert_from_path
-from pdf2image.exceptions import PDFInfoNotInstalledError, PDFPageCountError, PDFSyntaxError
+from PIL import ImageFilter, ImageEnhance
+from pdf2image import  convert_from_path
+
 
 def convert_pdf(path):
     images = convert_from_path(path)
     return "".join(read_image(image) for image in images)
+
 
 def read_image(image) -> str:
     image = image.convert('L')

@@ -1,3 +1,6 @@
+from turtledemo.penrose import star
+
+from celery.worker.consumer.mingle import exception, logger
 from rest_framework import response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -29,23 +32,30 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 @api_view(["POST"])
 def create_user(request):
-    serializer = UserSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    data = serializer.validated_data
-    requested_role = data.get("role", "USER")
-    if requested_role == "ADMIN" and not request.user.is_staff:
-        return response.Response(
-            {"error": "Only admins can create admin users"},
-            status=status.HTTP_403_FORBIDDEN,
+    try:
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        requested_role = data.get("role", "USER")
+        if requested_role == "ADMIN" and not request.user.is_staff:
+            return response.Response(
+                {"error": "Only admins can create admin users"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        User.objects.create_user(
+            username=data["username"],
+            password=data["password"],
+            email=data["email"],
+            role=requested_role,
         )
-    User.objects.create_user(
-        username=data["username"],
-        password=data["password"],
-        email=data["email"],
-        role=requested_role,
-    )
 
-    return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        logger.error(e)
+        return response.Response(
+            {"error": "Something went wrong"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
@@ -103,12 +113,16 @@ def get_user(request, id):
 @permission_classes([IsAdminUser])
 def delete_user(request, id):
     try:
-        user = User.objects.get(id = id)
+        user = User.objects.get(id=id)
         user.delete()
         return response.Response({"Deleted successfully"}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return response.Response(
             {"error": "User not found"},
-            status = status.HTTP_200_OK
+            status=status.HTTP_200_OK
         )
 
+
+@api_view(["GET"])
+def health_check(request):
+    return response.Response({"status": "Ok", "status": status.HTTP_200_OK})
