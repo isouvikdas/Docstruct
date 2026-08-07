@@ -162,6 +162,13 @@ http://localhost:8000/api/
 
 ```text
 POST /auth/register/user
+# Body
+{
+    "username": "...", # unique
+    "email": "...",
+    "password": "...",
+    "role": "USER"
+}
 ```
 
 ### 2. Login

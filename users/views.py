@@ -49,7 +49,7 @@ def create_user(request):
             role=requested_role,
         )
 
-        return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        return response.Response({"status": 'success'}, status=status.HTTP_201_CREATED)
     except Exception as e:
         logger.error(e)
         return response.Response(
