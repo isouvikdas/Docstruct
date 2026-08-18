@@ -9,11 +9,18 @@ from PIL import Image
 import logging
 from .llm import LLM
 from .embedding import embed_documents
+from idempotency.models import IdempotencyRecord
+from idempotency.services import update_idem
+import json
+
 logger = logging.getLogger(__name__)
 
+
 @shared_task
-def process_file(document_id):
+def process_file(document_id, idem_key: str):
     try:
+        idem = IdempotencyRecord.objects.filter(key=idem_key).first()
+        idem.status = 'COMPLETED'
         document = Document.objects.get(id=document_id)
         document.status = "PROCESSING"
         document.save()
@@ -45,10 +52,13 @@ def process_file(document_id):
             document.extracted_data = data
             document.save()
             embed_documents.delay(document.id)
+            update_idem(idem_key, status_code=200, response_body={'message': 'Success', 'data': json.loads(data)},
+                        state='COMPLETED')
         else:
             document.status = "FAILED"
             document.error_text = "LLM extraction failed"
             document.save()
+            update_idem(idem_key, status_code=200, response_body={'error': 'LLM extraction failed'}, state='COMPLETED')
             return
     except Exception as e:
         logger.error(str(e))
@@ -56,3 +66,5 @@ def process_file(document_id):
             status="FAILED",
             error_text=str(e)
         )
+        update_idem(idem_key, status_code=200, response_body={'error': str(e)}, state='COMPLETED')
+

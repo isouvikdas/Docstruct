@@ -8,6 +8,8 @@ import logging
 from . import storage, tasks
 from .models import Document
 from .serializers import DocumentSerializer
+from idempotency.services import claim_idem_or_create
+from idempotency.exception import IdempotencyKeyMismatch, IdempotencyInProgress
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,12 @@ logger = logging.getLogger(__name__)
 def upload_file_view(request):
     try:
         file = request.FILES.get('file')
+        key = request.data.get('key')
+        request_body = request.data.get({'filename': file.name, 'user_id': request.user.id})
+        endpoint = 'POST /upload'
+        idem = claim_idem_or_create(key, endpoint, request_body)
+        if idem and idem.state == 'COMPLETED':
+            return response.Response(idem.response_body, status=idem.status_code)
         if not file:
             return response.Response(
                 {"error": "No file provided"},
@@ -40,8 +48,20 @@ def upload_file_view(request):
             is_embedded=False
         )
         serializer = DocumentSerializer(saved_document)
-        tasks.process_file.delay(saved_document.id)
+        tasks.process_file.delay(saved_document.id, idem.key)
         return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+    except IdempotencyKeyMismatch as e:
+        logger.exception(e)
+        return response.Response(
+            {"error": "Idempotency key reused"},
+            status=status.HTTP_409_CONFLICT
+        )
+    except IdempotencyInProgress as e:
+        logger.exception(e)
+        return response.Response(
+            {"error": "Request in progress"},
+            status=status.HTTP_409_CONFLICT
+        )
     except Exception as e:
         logger.exception(e)
         return response.Response(
