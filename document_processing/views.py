@@ -10,6 +10,7 @@ from .models import Document
 from .serializers import DocumentSerializer
 from idempotency.services import claim_idem_or_create
 from idempotency.exception import IdempotencyKeyMismatch, IdempotencyInProgress
+from ratelimiter.consume_token import consume_token
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ logger = logging.getLogger(__name__)
 @parser_classes([MultiPartParser, FormParser])
 def upload_file_view(request):
     try:
+        if not consume_token(request.user.id, 100, 10, 1):
+            return response.Response({'status': "Too many requests"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
         file = request.FILES.get('file')
         key = request.data.get('key')
         request_body = request.data.get({'filename': file.name, 'user_id': request.user.id})
@@ -73,6 +76,8 @@ def upload_file_view(request):
 @permission_classes([IsAuthenticated])
 def ask_question_view(request):
     try:
+        if not consume_token(request.user.id, 100, 10, 1):
+            return response.Response({'status': "Too many requests"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
         doc_id = request.data.get('doc_id')
         query = request.data.get('query')
         if doc_id and doc_id != "":
@@ -103,6 +108,8 @@ def ask_question_view(request):
 @permission_classes([IsAuthenticated])
 def check_status_view(request, id):
     try:
+        if not consume_token(request.user.id, 100, 10, 1):
+            return response.Response({'status': "Too many requests"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
         document = Document.objects.get(id=id)
         if document.user.id != request.user.id:
             return response.Response({"message": "You are not authorized to view this document"}, status=status.HTTP_403_FORBIDDEN)

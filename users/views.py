@@ -10,10 +10,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User
 from .serializer import UserSerializer
-
+from ratelimiter.consume_token import consume_token
+from ratelimiter.client_ip import get_client_ip
 
 # Create your views here.
-
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -33,6 +33,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(["POST"])
 def create_user(request):
     try:
+        if not consume_token(get_client_ip(request), 100, 10, 1):
+            return response.Response({'status': "Too many requests"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
