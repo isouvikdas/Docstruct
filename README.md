@@ -236,7 +236,8 @@ Example
 ## Future Improvements
 
 - [ ] Add unit and integration tests
-- [ ] API rate limiting to prevent upload abuse
+- [x] API rate limiting to prevent upload abuse
+- [x] Add idempotency
 - [ ] Real-time task progress using Server-Sent Events (so users know when OCR is done)
 - [ ] File validation & stricter upload policies (file type checks, size limits, malware scanning)
 - [ ] CI/CD pipeline with GitHub Actions (lint, test, deploy on push)
